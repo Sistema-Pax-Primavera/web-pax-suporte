@@ -1,6 +1,6 @@
 import React from "react";
 import "./baixa-filial.css";
-import HeaderSuporte from "../../components/header-cobranca";
+import HeaderSuporte from "../../components/header-suporte";
 import ButtonIconTextoStart from "../../components/button-icon-texto-start";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";

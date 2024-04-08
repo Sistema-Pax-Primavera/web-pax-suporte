@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./alterar-caixa.css";
-import HeaderSuporte from "../../components/header-cobranca";
+import HeaderSuporte from "../../components/header-suporte";
 import ButtonIconTextoStart from "../../components/button-icon-texto-start";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";

@@ -11,7 +11,7 @@ const HeaderSuporte = () => {
     // Navegar para a rota específica
     navigate(route);
     // Salvar a rota no localStorage
-    localStorage.setItem("page-cobranca", route);
+    localStorage.setItem("page-suporte", route);
     // Atualizar a rota ativa
     setActiveRoute(route);
   };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "./alterar-forma-pagamento.css";
-import HeaderSuporte from "../../components/header-cobranca";
+import HeaderSuporte from "../../components/header-suporte";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";

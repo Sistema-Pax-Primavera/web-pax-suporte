@@ -1,5 +1,5 @@
 import React from 'react'
-import HeaderSuporte from '../components/header-cobranca'
+import HeaderSuporte from '../components/header-suporte'
 import './suporte.css'
 const Suporte = () => {
   return (
