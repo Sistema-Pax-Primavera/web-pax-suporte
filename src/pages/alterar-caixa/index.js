@@ -10,37 +10,33 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-function createData(name, pagamento, valorpagar, valorpago) {
-  return { name, pagamento, valorpagar, valorpago };
+
+function createData(name, pagamento, valorpagar, valorpago, teste) {
+  return { name, pagamento, valorpagar, valorpago, teste };
 }
 
 const rows = [
-  createData("20/05/2023", "22/05/2023", "100,00", "100,00"),
-  createData("22/05/2023", "22/05/2023", "100,00", "100,00"),
-  createData("23/05/2023", "23/05/2023", "100,00", "100,00"),
+  createData("20/05/2023", "22/05/2023", "100,00", "100,00", "teste 01"),
+  createData("22/05/2023", "22/05/2023", "100,00", "100,00", "teste 02"),
+  createData("23/05/2023", "23/05/2023", "100,00", "100,00", "teste 03"),
 ];
 
 const AlterarCaixa = () => {
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedTeste, setSelectedTeste] = useState(null);
 
-  const handleRowClick = (index) => {
+  const handleRowClick = (index, teste) => {
     const selectedIndex = selectedRows.indexOf(index);
     let newSelected = [];
 
     if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selectedRows, index);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selectedRows.slice(1));
-    } else if (selectedIndex === selectedRows.length - 1) {
-      newSelected = newSelected.concat(selectedRows.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selectedRows.slice(0, selectedIndex),
-        selectedRows.slice(selectedIndex + 1)
-      );
+      newSelected = [index];
     }
 
     setSelectedRows(newSelected);
+    setSelectedRow(index);
+    setSelectedTeste(teste);
   };
 
   const isSelected = (index) => selectedRows.indexOf(index) !== -1;
@@ -54,7 +50,7 @@ const AlterarCaixa = () => {
             <label>Contrato</label>
             <input></input>
           </div>
-          
+
           <div className="pesquisa-altera-caixa">
             <ButtonIconTextoStart
               title={"PESQUISAR"}
@@ -86,16 +82,46 @@ const AlterarCaixa = () => {
                     <TableRow
                       key={row.name}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                      style={{ backgroundColor: isItemSelected ? "#006b33" : "inherit" }}
-                      onClick={() => handleRowClick(index)}
+                      style={{
+                        backgroundColor: isItemSelected ? "#006b33" : "inherit",
+                      }}
+                      onClick={() => handleRowClick(index, row.teste)}
                       selected={isItemSelected}
                     >
-                      <TableCell component="th" scope="row" style={{ color: isItemSelected ? "#ffffff" : "inherit" }}>
+                      <TableCell
+                        component="th"
+                        scope="row"
+                        style={{
+                          color: isItemSelected ? "#ffffff" : "inherit",
+                        }}
+                      >
                         {row.name}
                       </TableCell>
-                      <TableCell align="center" style={{ color: isItemSelected ? "#ffffff" : "inherit" }}>{row.pagamento}</TableCell>
-                      <TableCell align="center" style={{ color: isItemSelected ? "#ffffff" : "inherit" }}>{row.valorpagar}</TableCell>
-                      <TableCell align="center" style={{ color: isItemSelected ? "#ffffff" : "inherit" }}>{row.valorpago}</TableCell>
+                      <TableCell
+                        align="center"
+                        style={{
+                          color: isItemSelected ? "#ffffff" : "inherit",
+                        }}
+                      >
+                        {row.pagamento}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        style={{
+                          color: isItemSelected ? "#ffffff" : "inherit",
+                        }}
+                      >
+                        {row.valorpagar}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        style={{
+                          color: isItemSelected ? "#ffffff" : "inherit",
+                        }}
+                      >
+                        {row.valorpago}
+                      </TableCell>
+                      <TableCell style={{ display: "none" }}>{row.teste}</TableCell>
                     </TableRow>
                   );
                 })}
@@ -110,9 +136,13 @@ const AlterarCaixa = () => {
           </div>
           <div className="campos-alterar-contrato2">
             <label>Transferir para Caixa</label>
-            <select></select>
+            <select value={selectedTeste || ""} onChange={(e) => setSelectedTeste(e.target.value)}>
+              {rows.map((row) => (
+                <option key={row.teste} value={row.teste}>{row.teste}</option>
+              ))}
+            </select>
           </div>
-          
+
           <div className="pesquisa-altera-caixa">
             <ButtonIconTextoStart
               title={"ALTERAR CAIXA"}

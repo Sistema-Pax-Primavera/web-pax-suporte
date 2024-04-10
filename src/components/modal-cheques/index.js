@@ -4,6 +4,7 @@ import Typography from "@mui/material/Typography";
 import Modal from "@mui/material/Modal";
 import Button from "@mui/material/Button";
 import "./modal-cheques.css";
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 const style = {
   position: "absolute",
@@ -19,19 +20,25 @@ const style = {
   padding:3,
 };
 
-const ModalCheque = ({ conteudo,height, width, openModal, onCloseModal, children, icon, title, corFundoBotao, corTextoBotao, fontSizeBotao, fontWeightBotao }) => {
+const ModalCheque = ({ conteudo, height, width, openModal, onCloseModal, children, icon, title, corFundoBotao, corTextoBotao, fontSizeBotao, fontWeightBotao }) => {
   const [open, setOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleOpen = () => {
     setOpen(true);
+    setIsAnimating(true);
   };
 
   const handleClose = () => {
-    setOpen(false);
-    if (typeof onCloseModal === 'function') {
-      onCloseModal(); // Chamando a função de fechamento da modal, se necessário
-    }
+    setIsAnimating(false);
+    setTimeout(() => {
+      setOpen(false);
+      if (typeof onCloseModal === 'function') {
+        onCloseModal(); // Chamando a função de fechamento da modal, se necessário
+      }
+    }, 500); // Espera o término da animação (500ms) antes de fechar a modal
   };
+
   return (
     <>
       <div className="teste333">
@@ -45,11 +52,16 @@ const ModalCheque = ({ conteudo,height, width, openModal, onCloseModal, children
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
+        className={`modal-cheque ${open ? "open" : ""} ${isAnimating ? "slideDownAnimation" : ""}`}
       >
         <Box sx={{...style, height, width}}>
-          <Typography>
-            {conteudo}
-            
+        <Typography>
+            <div className="container-modal-pequena">
+              <div className="fecha-container-modal-pequena">
+                <button onClick={handleClose}><HighlightOffIcon fontSize={'small'}/></button>
+              </div>
+              <div className="conteudo-container-modal">{conteudo}</div>
+            </div>
           </Typography>
         </Box>
       </Modal>
