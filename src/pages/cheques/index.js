@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import "./cheques.css";
 import HeaderSuporte from "../../components/header-suporte";
 import ButtonIconTextoStart from "../../components/button-icon-texto-start";
@@ -13,38 +13,32 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import Checkbox from "@mui/material/Checkbox";
 import ArticleIcon from "@mui/icons-material/Article";
 import ModalCheque from "../../components/modal-cheques";
+import { toast } from "react-toastify";
+import { useSuporte } from "../../services/api";
 
 const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
-function createData(name, responsavel, numerocheque, dadosbancarios, valor) {
-  return { name, responsavel, numerocheque, dadosbancarios, valor };
-}
-
-const rows = [
-  createData(
-    "20/05/2023",
-    "Alessandro Figueiredo",
-    "563215",
-    "Bradesco Agência 5040-6",
-    "432,00"
-  ),
-  createData(
-    "23/05/2023",
-    "Carlos Perreira",
-    "64565",
-    "Banco do Brasil 2040-6",
-    "250,00"
-  ),
-  createData(
-    "25/05/2023",
-    "Jéssica Alveira",
-    "25650",
-    "Banco do Brasil 5049-9",
-    "250,00"
-  ),
-];
-
 const Cheques = () => {
+  const [status, setStatus] = useState(null);
+  const [cheques, setCheques] = useState([]);
+  const [nCheque, setNCheque] = useState("");
+  const [agencia, setAgencia] = useState("");
+  const [conta, setConta] = useState(null);
+  const [nome, setNome] = useState("");
+  const [valor, setValor] = useState(null);
+  const [dataCheque, setDataCheque] = useState(null);
+  const [banco, setBanco] = useState(null);
+  const { getCheques } = useSuporte();
+
+  useEffect(async () => {
+    try {
+      const data = await getCheques(status);
+      setCheques(data)
+    } catch (error) {
+      toast.error(error)
+    }
+  }, []);
+
   return (
     <div className="container-suporte">
       <HeaderSuporte />
@@ -146,17 +140,17 @@ const Cheques = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
+                {cheques.map((row) => (
                   <TableRow
-                    key={row.name}
+                    key={row.id}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
                     <TableCell component="th" scope="row">
-                      {row.name}
+                      {row.data}
                     </TableCell>
-                    <TableCell align="start">{row.responsavel}</TableCell>
-                    <TableCell align="center">{row.numerocheque}</TableCell>
-                    <TableCell align="start">{row.dadosbancarios}</TableCell>
+                    <TableCell align="start" >{row.nome}</TableCell>
+                    <TableCell align="center">{row.numero_cheque}</TableCell>
+                    <TableCell align="start">Agencia:{row.agencia} Conta:{row.conta} - {row.banco}</TableCell>
                     <TableCell align="center">{row.valor}</TableCell>
                     <TableCell align="start">
                       <div>
@@ -170,35 +164,39 @@ const Cheques = () => {
                               <div className="linhas-campos-cheque">
                                 <div className="campos-alterar-contrato-modal">
                                   <label>Nº do Cheque</label>
-                                  <input></input>
+                                  <input type="number" value={row.numero_cheque} />
                                 </div>
                                 <div className="campos-alterar-contrato-modal">
                                   <label>Agência</label>
-                                  <input></input>
+                                  <input type="number" value={row.agencia} />
                                 </div>
                                 <div className="campos-alterar-contrato-modal">
                                   <label>Conta</label>
-                                  <input></input>
+                                  <input type="number" value={row.conta} />
                                 </div>
                               </div>
                               <div className="linhas-campos-cheque">
                                 <div className="campos-alterar-contrato-modal2">
                                   <label>Banco</label>
-                                  <select></select>
+                                  <select value={banco || ""} onChange={(e) => setBanco(e.target.value)}>
+                                    <option value={1}>Banco do Brasil</option>
+                                    <option value={2}>Bradesco</option>
+                                    <option value={3}>Sicredi</option>
+                                  </select>
                                 </div>
                                 <div className="campos-alterar-contrato-modal2">
                                   <label>Data Cheque</label>
-                                  <input></input>
+                                  <input type="date" value={row.data}></input>
                                 </div>
                               </div>
                               <div className="linhas-campos-cheque">
                                 <div className="campos-alterar-contrato-modal2">
                                   <label>Nome Impresso</label>
-                                  <select></select>
+                                  <input type="text" value={row.nome}></input>
                                 </div>
                                 <div className="campos-alterar-contrato-modal2">
                                   <label>Valor do Cheque</label>
-                                  <input></input>
+                                  <input type="text" value={row.valor} />
                                 </div>
                               </div>
                             </div>
