@@ -10,23 +10,64 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-
-function createData(name, pagamento, valorpagar, valorpago, teste) {
-  return { name, pagamento, valorpagar, valorpago, teste };
-}
-
-const rows = [
-  createData("20/05/2023", "22/05/2023", "100,00", "100,00", "teste 01"),
-  createData("22/05/2023", "22/05/2023", "100,00", "100,00", "teste 02"),
-  createData("23/05/2023", "23/05/2023", "100,00", "100,00", "teste 03"),
-];
+import { useSuporte } from "../../services/api";
+import { headerAltCaixa } from "../../entities/headers/header-alt-caixa";
+import TableComponent from "../../components/table/table";
+import { toast } from "react-toastify";
 
 const AlterarCaixa = () => {
+  const [numContrato, setNumContrato] = useState(null);
+  const [titular, setTitular] = useState("");
+  const [pagamentos, setPagamentos] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [selectedRow, setSelectedRow] = useState(null);
   const [selectedTeste, setSelectedTeste] = useState(null);
+  const { getPagamentos, alterarCaixa } = useSuporte();
 
-  const handleRowClick = (index, teste) => {
+  const pesquisar = async () => {
+    try {
+      //setLoading(true);
+      if (numContrato) {
+        const data = await getPagamentos(numContrato);
+        setTitular(data.titular)
+        setPagamentos(data.pagamentos);
+      }
+    } catch (error) {
+      console.log(error);
+
+    }
+  };
+
+  const altCaixa = async () => {
+    console.log(selectedRow)
+    try {
+      if (selectedRow && selectedTeste) {
+        const contrato = numContrato;
+        const idPag = selectedRow.id;
+        const caixa = selectedTeste;
+
+        // Chamar a função para alterar a forma de pagamento
+        await alterarCaixa(contrato, idPag, caixa);
+
+        toast.success("Forma de pagamento alterada com sucesso.");
+
+        // Limpar os campos após a alteração bem-sucedida
+        setNumContrato("");
+        setTitular("");
+        setPagamentos([]);
+        setSelectedRows([]);
+        setSelectedRow(null);
+        setSelectedTeste(null);
+      } else {
+        toast.warning("Nenhuma linha selecionada.");
+      }
+    } catch (error) {
+      toast.error("Erro ao tentar alterar a forma de pagamento:", error);
+      // Trate o erro conforme necessário
+    }
+  };
+
+  const handleRowClick = (index, row) => {
     const selectedIndex = selectedRows.indexOf(index);
     let newSelected = [];
 
@@ -35,8 +76,8 @@ const AlterarCaixa = () => {
     }
 
     setSelectedRows(newSelected);
-    setSelectedRow(index);
-    setSelectedTeste(teste);
+    setSelectedRow(row);
+    setSelectedTeste(row.tipo_caixa);
   };
 
   const isSelected = (index) => selectedRows.indexOf(index) !== -1;
@@ -48,7 +89,16 @@ const AlterarCaixa = () => {
         <div className="linhas-campos-alterar-caixa">
           <div className="campos-alterar-contrato">
             <label>Contrato</label>
-            <input></input>
+            <input
+              type="number"
+              value={numContrato}
+              onChange={(e) => {
+                const inputValue = e.target.value;
+                if (!isNaN(inputValue) && inputValue >= 0) {
+                  setNumContrato(inputValue);
+                }
+              }}
+            />
           </div>
 
           <div className="pesquisa-altera-caixa">
@@ -58,12 +108,14 @@ const AlterarCaixa = () => {
               fontSizeBotao={"12px"}
               corTextoBotao={"#ffff"}
               fontWeightBotao={"800"}
+              funcao={() => pesquisar()}
             />
           </div>
+
         </div>
         <div className="tabela-alterar-caixa">
           <p>
-            <AccountCircleIcon fontSize={"small"} /> Cliente
+            <AccountCircleIcon fontSize={"small"} /> {titular ? <p>{titular}</p> : 'Cliente'}
           </p>
           <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -76,16 +128,16 @@ const AlterarCaixa = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row, index) => {
+                {pagamentos.map((row, index) => {
                   const isItemSelected = isSelected(index);
                   return (
                     <TableRow
-                      key={row.name}
+                      key={row.id}
                       sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                       style={{
                         backgroundColor: isItemSelected ? "#006b33" : "inherit",
                       }}
-                      onClick={() => handleRowClick(index, row.teste)}
+                      onClick={() => handleRowClick(index, row)}
                       selected={isItemSelected}
                     >
                       <TableCell
@@ -95,7 +147,7 @@ const AlterarCaixa = () => {
                           color: isItemSelected ? "#ffffff" : "inherit",
                         }}
                       >
-                        {row.name}
+                        {row.data_vencimento}
                       </TableCell>
                       <TableCell
                         align="center"
@@ -103,7 +155,7 @@ const AlterarCaixa = () => {
                           color: isItemSelected ? "#ffffff" : "inherit",
                         }}
                       >
-                        {row.pagamento}
+                        {row.data_pagamento}
                       </TableCell>
                       <TableCell
                         align="center"
@@ -111,7 +163,7 @@ const AlterarCaixa = () => {
                           color: isItemSelected ? "#ffffff" : "inherit",
                         }}
                       >
-                        {row.valorpagar}
+                        {row.valor_pagar}
                       </TableCell>
                       <TableCell
                         align="center"
@@ -119,27 +171,30 @@ const AlterarCaixa = () => {
                           color: isItemSelected ? "#ffffff" : "inherit",
                         }}
                       >
-                        {row.valorpago}
+                        {row.valor_pago}
                       </TableCell>
-                      <TableCell style={{ display: "none" }}>{row.teste}</TableCell>
                     </TableRow>
                   );
                 })}
               </TableBody>
             </Table>
           </TableContainer>
+          {/* <TableComponent
+            headers={headerAltCaixa}
+            rows={pagamentos}
+            actionsLabel={["Ações", "Acciones"]}
+            actionCalls={{
+            }}
+            onRowSelect={handleRowClick}
+          /> */}
         </div>
         <div className="linhas-campos-alterar-caixa">
-          <div className="campos-alterar-contrato">
-            <label>Contrato</label>
-            <input></input>
-          </div>
           <div className="campos-alterar-contrato2">
             <label>Transferir para Caixa</label>
             <select value={selectedTeste || ""} onChange={(e) => setSelectedTeste(e.target.value)}>
-              {rows.map((row) => (
-                <option key={row.teste} value={row.teste}>{row.teste}</option>
-              ))}
+              <option value={"E"}>Escritorio</option>
+              <option value={"B"}>Bancario</option>
+              <option value={"V"}>Vendas</option>
             </select>
           </div>
 
@@ -150,6 +205,7 @@ const AlterarCaixa = () => {
               fontSizeBotao={"12px"}
               corTextoBotao={"#ffff"}
               fontWeightBotao={"700"}
+              funcao={() => altCaixa()}
             />
           </div>
           <div className="pesquisa-altera-caixa">
