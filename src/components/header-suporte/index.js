@@ -45,11 +45,11 @@ const HeaderSuporte = () => {
         className={activeRoute === "/baixa-filial" ? "active" : ""}
       >Baixa Filial
       </button>
-      <button
+      {/* <button
         onClick={() => handleMenuClick("/cheques")}
         className={activeRoute === "/cheques" ? "active" : ""}
       >Cheques
-      </button>
+      </button> */}
       
 
     </div>
